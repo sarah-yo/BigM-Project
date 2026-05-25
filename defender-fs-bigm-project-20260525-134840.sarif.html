@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Defender AI Scan — </title>
+<style>:root {
+  --bg: #0d1117;
+  --bg-elev: #161b22;
+  --bg-card: rgba(22, 27, 34, 0.65);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-dimmer: #6e7681;
+
+  --sev-critical: #f85149;
+  --sev-high:     #fb8500;
+  --sev-medium:   #d4a72c;
+  --sev-low:      #3fb950;
+
+  --grad-hero:     linear-gradient(120deg, #79c0ff 0%, #d2a8ff 50%, #ff7b72 100%);
+  --grad-critical: linear-gradient(90deg, #f85149, #ff7b72);
+  --grad-high:     linear-gradient(90deg, #fb8500, #ffb86c);
+  --grad-medium:   linear-gradient(90deg, #d4a72c, #f1e05a);
+  --grad-low:      linear-gradient(90deg, #3fb950, #56d364);
+
+  --pill-bg: rgba(125, 133, 144, 0.15);
+  --pill-border: rgba(125, 133, 144, 0.3);
+  --callout-critical-bg:     rgba(248, 81, 73, 0.08);
+  --callout-critical-border: #f85149;
+  --callout-clean-bg:        rgba(63, 185, 80, 0.08);
+  --callout-clean-border:    #3fb950;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff;
+    --bg-elev: #f6f8fa;
+    --bg-card: rgba(246, 248, 250, 0.85);
+    --border: rgba(0, 0, 0, 0.1);
+    --text: #1f2328;
+    --text-dim: #656d76;
+    --text-dimmer: #8c959f;
+    --sev-critical: #cf222e;
+    --sev-high:     #bc4c00;
+    --sev-medium:   #9a6700;
+    --sev-low:      #1a7f37;
+    --grad-hero: linear-gradient(120deg, #0969da 0%, #8250df 50%, #cf222e 100%);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  background: var(--bg);
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: radial-gradient(ellipse at top, #1a2440 0%, var(--bg) 50%);
+    background-attachment: fixed;
+  }
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+.hero {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+
+.brand-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: var(--grad-hero);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.15;
+}
+
+.hero-subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem 0;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+.meta-strip {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.meta-chip svg { width: 14px; height: 14px; opacity: 0.7; }
+
+section.report-section { margin: 3rem 0; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+}
+
+.section-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.stat-card-num {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card.sev-critical .stat-card-num { color: var(--sev-critical); }
+.stat-card.sev-high     .stat-card-num { color: var(--sev-high); }
+.stat-card.sev-medium   .stat-card-num { color: var(--sev-medium); }
+.stat-card.sev-low      .stat-card-num { color: var(--sev-low); }
+
+.stat-card-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+
+.stat-card-bar {
+  height: 4px;
+  background: var(--bg-elev);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stat-card-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.stat-card.sev-critical .stat-card-bar-fill { background: var(--grad-critical); }
+.stat-card.sev-high     .stat-card-bar-fill { background: var(--grad-high); }
+.stat-card.sev-medium   .stat-card-bar-fill { background: var(--grad-medium); }
+.stat-card.sev-low      .stat-card-bar-fill { background: var(--grad-low); }
+
+.summary-narrative {
+  margin: 1.5rem 0 0 0;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+
+.callout {
+  border-left: 3px solid;
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+  background: var(--bg-card);
+}
+
+.callout-critical {
+  background: var(--callout-critical-bg);
+  border-left-color: var(--callout-critical-border);
+}
+
+.callout-clean {
+  background: var(--callout-clean-bg);
+  border-left-color: var(--callout-clean-border);
+}
+
+.callout-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.callout-item {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.callout-item-loc {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.callout-item-desc { color: var(--text); }
+
+.callout a {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--text-dim);
+}
+
+.coverage {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 700px) { .coverage { grid-template-columns: 1fr; } }
+
+.coverage-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+
+.coverage-value { color: var(--text); font-size: 0.95rem; }
+
+.finding-group { margin: 1.5rem 0; }
+
+.finding-group.sev-low { opacity: 0.75; }
+
+.finding-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.finding-group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.finding-group.sev-critical .finding-group-dot { background: var(--sev-critical); }
+.finding-group.sev-high     .finding-group-dot { background: var(--sev-high); }
+.finding-group.sev-medium   .finding-group-dot { background: var(--sev-medium); }
+.finding-group.sev-low      .finding-group-dot { background: var(--sev-low); }
+
+.finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: 0 8px 8px 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+
+.finding.sev-critical { border-left-color: var(--sev-critical); }
+.finding.sev-high     { border-left-color: var(--sev-high); }
+.finding.sev-medium   { border-left-color: var(--sev-medium); }
+.finding.sev-low      { border-left-color: var(--sev-low); }
+
+.finding summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.finding summary::-webkit-details-marker { display: none; }
+.finding summary::marker { display: none; }
+
+.sev-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.finding.sev-critical .sev-badge { background: var(--sev-critical); }
+.finding.sev-high     .sev-badge { background: var(--sev-high); }
+.finding.sev-medium   .sev-badge { background: var(--sev-medium); color: #1f2328; }
+.finding.sev-low      .sev-badge { background: var(--sev-low); }
+
+.finding-loc {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.finding-rule, .finding-cat {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  padding: 0.15rem 0.5rem;
+  background: var(--pill-bg);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.finding-chevron {
+  color: var(--text-dim);
+  transition: transform 0.2s ease;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.finding[open] .finding-chevron { transform: rotate(90deg); }
+
+.finding-body {
+  padding: 0.5rem 1rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.finding-body h4 {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0.75rem 0 0.35rem 0;
+  color: var(--text);
+}
+
+.finding-body p {
+  margin: 0.25rem 0;
+}
+
+details.artifacts, details.scan-details {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+details.artifacts summary, details.scan-details summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  list-style: none;
+}
+
+details.artifacts summary::-webkit-details-marker,
+details.scan-details summary::-webkit-details-marker { display: none; }
+
+details.artifacts summary::before,
+details.scan-details summary::before {
+  content: "›";
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+details.artifacts[open] summary::before,
+details.scan-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+details.artifacts[open] summary, details.scan-details[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+table.artifacts-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+table.artifacts-table th, table.artifacts-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+table.artifacts-table th { color: var(--text-dim); font-weight: 500; }
+.artifact-path {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  color: var(--text-dim);
+  word-break: break-all;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.kv dt { color: var(--text-dim); }
+.kv dd {
+  margin: 0;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  word-break: break-all;
+  color: var(--text);
+}
+
+.kv dd a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-dim); }
+
+.rai {
+  margin-top: 3rem;
+  padding: 1rem 1.25rem;
+  background: rgba(212, 167, 44, 0.08);
+  border-left: 3px solid var(--sev-medium);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.rai strong { color: var(--text); }
+
+.tool-profiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.tool-card-name {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-card-tools {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--text-dimmer);
+  margin-top: 0.25rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.tool-card-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.tool-card-stats strong { color: var(--text); }
+
+.coverage-meta {
+  color: var(--text-dimmer);
+  font-size: 0.8rem;
+}
+
+.coverage-meta code {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  color: var(--text-dim);
+  background: var(--pill-bg);
+  padding: 0 0.3rem;
+  border-radius: 3px;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 2rem;
+  padding-bottom: 1rem;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 3px solid var(--sev-low);
+  box-sizing: border-box;
+}
+
+.timeline-item.status-failed .timeline-dot { border-color: var(--sev-critical); }
+
+.timeline-time {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.timeline-stage {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.timeline-duration {
+  color: var(--text-dimmer);
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+}
+
+.top-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.top-rules-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dimmer);
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.top-rule {
+  color: var(--text-dim);
+  padding: 0.15rem 0.5rem;
+  background: var(--pill-bg);
+  border-radius: 4px;
+}
+
+.top-rule strong { color: var(--text); }
+
+.finding-cat.ai-vuln {
+  background: linear-gradient(90deg, #79c0ff, #d2a8ff);
+  color: #0d1117;
+  font-weight: 700;
+  border: none;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.05em;
+}
+
+@media (prefers-color-scheme: light) {
+  .finding-cat.ai-vuln {
+    background: linear-gradient(90deg, #0969da, #8250df);
+    color: #ffffff;
+  }
+}
+
+.remediation-body h4, .remediation-body h5, .remediation-body h6 {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0.75rem 0 0.35rem 0;
+  font-weight: 600;
+}
+
+.remediation-body p { margin: 0.35rem 0; }
+.remediation-body code {
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 0.85em;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  padding: 0.05em 0.35em;
+  border-radius: 3px;
+}
+.remediation-body pre {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin: 0.6rem 0;
+}
+.remediation-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .hero-title {
+    -webkit-text-fill-color: #000 !important;
+    background: none !important;
+    color: #000 !important;
+  }
+  .stat-card, .coverage, .finding, details.artifacts, details.scan-details {
+    background: #f6f8fa !important;
+    border-color: #d0d7de !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <header class="hero">
+    <div class="brand-pill">Defender · AI Scan</div>
+    <h1 class="hero-title">AI Scan Results</h1>
+    <p class="hero-subtitle">Multi-stage AI vulnerability detection · </p>
+    <div class="meta-strip">
+      <span class="meta-chip" title="Scan completed at">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M2 6h12M5 1.5v3M11 1.5v3"/></svg>
+        2026-05-25 03:48:59 UTC
+      </span>
+      <span class="meta-chip" title="Target">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="1" fill="currentColor"/></svg>
+        
+      </span>
+      
+      <span class="meta-chip" title="Scan duration">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 4v4l3 2"/></svg>
+        0s
+      </span>
+      
+      
+      <span class="meta-chip" title="Total findings">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3" stroke-linecap="round"/></svg>
+        11 findings
+      </span>
+    </div>
+  </header>
+
+  
+  <section class="report-section">
+    <div class="section-header">
+      <span class="section-marker">1</span>
+      <h2 class="section-title">EXECUTIVE SUMMARY</h2>
+      <span class="section-rule"></span>
+    </div>
+    <div class="stat-cards">
+      <div class="stat-card sev-critical">
+        <div class="stat-card-num">0</div>
+        <div class="stat-card-label">Critical</div>
+        <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card sev-high">
+        <div class="stat-card-num">10</div>
+        <div class="stat-card-label">High</div>
+        <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:90%"></div></div>
+      </div>
+      <div class="stat-card sev-medium">
+        <div class="stat-card-num">0</div>
+        <div class="stat-card-label">Medium</div>
+        <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card sev-low">
+        <div class="stat-card-num">1</div>
+        <div class="stat-card-label">Low</div>
+        <div class="stat-card-bar"><div class="stat-card-bar-fill" style="width:9%"></div></div>
+      </div>
+    </div>
+    <p class="summary-narrative">Scan found 11 finding(s). Highest severity: high.</p>
+  </section>
+
+  
+  
+
+  
+  <section class="report-section">
+    <div class="section-header">
+      <span class="section-marker">2</span>
+      <h2 class="section-title">Scan Context</h2>
+      <span class="section-rule"></span>
+    </div>
+
+    
+    <div class="tool-profiles">
+      
+      <div class="tool-card">
+        <div class="tool-card-name">Source code</div>
+        <div class="tool-card-tools">Bandit, ESLint</div>
+        <div class="tool-card-stats">
+          <span><strong>3</strong> findings</span>
+        </div>
+      </div>
+      
+      <div class="tool-card">
+        <div class="tool-card-name">Secrets</div>
+        <div class="tool-card-tools">gitleaks</div>
+        <div class="tool-card-stats">
+          <span><strong>8</strong> findings</span>
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <div class="coverage">
+      <div>
+        <div class="coverage-label">Categories scanned</div>
+        <div class="coverage-value">Template Analyzer, IacFileScanner, Vulnerability Scanning, Secrets, Code Scanning</div>
+      </div>
+      <div>
+        <div class="coverage-label">Duration</div>
+        <div class="coverage-value">0s</div>
+      </div>
+      <div>
+        <div class="coverage-label">Repository</div>
+        <div class="coverage-value">
+          Local Scan
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  
+
+  
+  <section class="report-section" id="findings">
+    <div class="section-header">
+      <span class="section-marker">4</span>
+      <h2 class="section-title">FINDINGS (11)</h2>
+      <span class="section-rule"></span>
+    </div>
+
+    
+    <div class="top-rules">
+      <span class="top-rules-label">Top rules</span>
+      
+      <span class="top-rule"><strong>generic-api-key</strong> ×3</span>
+      
+      <span class="top-rule"><strong>private-key</strong> ×2</span>
+      
+      <span class="top-rule"><strong>@microsoft/sdl/no-inner-html</strong> ×1</span>
+      
+      <span class="top-rule"><strong>B403</strong> ×1</span>
+      
+      <span class="top-rule"><strong>github-pat</strong> ×1</span>
+      
+    </div>
+    
+
+    
+      
+      <div class="finding-group sev-critical" id="findings-critical">
+        <div class="finding-group-header">
+          <span class="finding-group-dot"></span>
+          <span>Critical (0)</span>
+        </div>
+        
+      </div>
+      
+      <div class="finding-group sev-high">
+        <div class="finding-group-header">
+          <span class="finding-group-dot"></span>
+          <span>High (10)</span>
+        </div>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">app.js:12</span>
+            <span class="finding-rule">generic-api-key</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>generic-api-key has detected secret for file C:/Users/sayoung/BigM-Project/app.js.</p>
+            <h4>Component</h4><p>app.js</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:23</span>
+            <span class="finding-rule">github-pat</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>github-pat has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:11</span>
+            <span class="finding-rule">generic-api-key</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>generic-api-key has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:23</span>
+            <span class="finding-rule">generic-api-key</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>generic-api-key has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:12</span>
+            <span class="finding-rule">stripe-access-token</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>stripe-access-token has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:26</span>
+            <span class="finding-rule">slack-webhook-url</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>slack-webhook-url has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">.env.example:18</span>
+            <span class="finding-rule">private-key</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>private-key has detected secret for file C:/Users/sayoung/BigM-Project/.env.example.</p>
+            <h4>Component</h4><p>.env.example</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">Pulumi.dev.yaml:20</span>
+            <span class="finding-rule">private-key</span>
+            <span class="finding-cat">Secrets</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>private-key has detected secret for file C:/Users/sayoung/BigM-Project/vulnerable-infra/Pulumi.dev.yaml.</p>
+            <h4>Component</h4><p>Pulumi.dev.yaml</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">app.js:6</span>
+            <span class="finding-rule">@microsoft/sdl/no-inner-html</span>
+            <span class="finding-cat">Source code</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>Do not write to DOM directly using innerHTML/outerHTML property</p>
+            <h4>Component</h4><p>app.js</p>
+            
+            
+          </div>
+        </details>
+        
+        <details class="finding sev-high">
+          <summary>
+            <span class="sev-badge">High</span>
+            <span class="finding-loc">app.js:14</span>
+            <span class="finding-rule">no-eval</span>
+            <span class="finding-cat">Source code</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>eval can be harmful.</p>
+            <h4>Component</h4><p>app.js</p>
+            
+            
+          </div>
+        </details>
+        
+      </div>
+      
+      <div class="finding-group sev-medium">
+        <div class="finding-group-header">
+          <span class="finding-group-dot"></span>
+          <span>Medium (0)</span>
+        </div>
+        
+      </div>
+      
+      <div class="finding-group sev-low">
+        <div class="finding-group-header">
+          <span class="finding-group-dot"></span>
+          <span>Low (1)</span>
+        </div>
+        
+        <details class="finding sev-low">
+          <summary>
+            <span class="sev-badge">Low</span>
+            <span class="finding-loc">insecure.py:2</span>
+            <span class="finding-rule">B403</span>
+            <span class="finding-cat">Source code</span>
+            <span class="finding-chevron">›</span>
+          </summary>
+          <div class="finding-body">
+            <h4>Description</h4>
+            <p>Consider possible security implications associated with pickle module.</p>
+            <h4>Component</h4><p>insecure.py</p>
+            
+            
+          </div>
+        </details>
+        
+      </div>
+      
+    
+  </section>
+
+  
+  
+
+  
+  <details class="scan-details">
+    <summary>Scan details</summary>
+    <dl class="kv">
+      <dt>Run ID</dt><dd></dd>
+      <dt>Target</dt><dd></dd>
+      <dt>Command</dt><dd>C:\Windows\System32\defender.exe scan fs C:\Users\sayoung\BigM-Project --format list --format html --include ai-vuln --details</dd>
+      <dt>Started</dt><dd>2026-05-25 03:48:59 UTC</dd>
+      <dt>Duration</dt><dd>0s</dd>
+      
+    </dl>
+  </details>
+
+  
+  
+
+  <script>document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.finding-group-header').forEach(header => {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', () => {
+      const group = header.parentElement;
+      const items = group.querySelectorAll('details.finding');
+      const allOpen = Array.from(items).every(d => d.open);
+      items.forEach(d => { d.open = !allOpen; });
+    });
+  });
+});
+</script>
+</div>
+</body>
+</html>
