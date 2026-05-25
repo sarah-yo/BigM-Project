@@ -1,0 +1,21 @@
+{
+  "name": "vulnerable-test-app",
+  "version": "1.0.0",
+  "description": "A vulnerable test application for Trivy scanning",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "express": "4.16.4",
+    "lodash": "4.17.4",
+    "moment": "2.19.3",
+    "axios": "0.18.0",
+    "jsonwebtoken": "8.3.0",
+    "mongoose": "5.0.0"
+  },
+  "keywords": ["test", "vulnerable", "trivy"],
+  "author": "Test User",
+  "license": "MIT"
+}

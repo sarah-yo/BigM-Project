@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  vulnerable-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    restart: unless-stopped
+    container_name: vulnerable-test-app
+    
+  # Optional: Add a database with vulnerabilities too
+  vulnerable-db:
+    image: mongo:4.0.0  # Outdated MongoDB version with vulnerabilities
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    container_name: vulnerable-mongo

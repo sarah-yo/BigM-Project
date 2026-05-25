@@ -1,0 +1,27 @@
+config:
+  aws:region: us-west-2
+  # VULNERABILITY: Secrets in plain text configuration instead of encrypted secrets
+  aws:accessKey: AKIAIOSFODNN7EXAMPLE
+  aws:secretKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  
+  # Azure configuration with plain text secrets
+  azure-native:clientId: 00000000-0000-0000-0000-000000000000
+  azure-native:clientSecret: super-secret-client-secret-value
+  azure-native:tenantId: 00000000-0000-0000-0000-000000000000
+  azure-native:subscriptionId: 00000000-0000-0000-0000-000000000000
+  
+  # GCP configuration with plain text secrets
+  gcp:project: my-gcp-project
+  gcp:credentials: |
+    {
+      "type": "service_account",
+      "project_id": "my-gcp-project",
+      "private_key_id": "key-id-example",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCx5kCyUUBIFE4v\nS0k2dIbH2U25MOFop8QOgNEyAu3SHFrvnM+qDjDJ7WkFpNBYYxBDdj7gyhYk8p4s\nUqMor8sVEzIjMhC2EcvkFGHbhBJZbC4IfAAmHvUkCPZZMjLnETh+BjFOI3HLcFk5\nOXVN6kUxJqYGkEaHLQzAYTxCYm5fBKekE7KzT5N/aTzRwRDs1Bq8SMQy1CPqF9P3\nm3gUiWMh6Hx3DsGyRXPPPkIVZOyOB2LAjYzjsJWfr57q6x96cbHz8A5NLELheLGe\nKAHpHOK3D8gDrZ4yyKWBdow3zoAGg+dCCXhCLu+CIuYY5adK0ARsE2BOtp79NY7F\nqEXGaOAlAgMBAAECggEADg5RYy0vXFAKAowIBPo9+C1+vaXA2RHQCEj3Vy16OjDT\niHV6hhyjWwHj/JFKIQKBgQD55DFAEK+MYpfrMwrSAfN6yvNFSDKBn05IMqkHbYSL\nM0kYY0a3kHHG0FGvAKiYURFVhTjbdDQxnLLeCy3qJD7Ug4rQZgLUwLvjxgWXQQKB\ngQC2TNJ6GqT/P2/sTLmZ7qwYeHlFzXqZCMPsZGtID5GcSc/H0NEMOJPSh0GlKYJb\neYGl7CrFgwpovwJP5MIDBp30pQkgdXsRvJO09OLEoNh2nL0NYlVZXpRnQ74ax4pD\nBkq0v5Qil4cp+pQDCHDSAzT+zhEAoEXiHbRDOcyf5QKBgQDTHZpYPBz3o7ygmXXx\nsV95W1QOoaA7BcGr5NdI14FFdku8cxzMZ0qXbqUwIYUOsZUqCQlhS+v5ODbH9JmG\nCBMR2umgkKXcz/R0+v1sQscPzwO3f+JkqQfFsJ9HZ+91/SRSKROMQPkNBIlwJFPS\n+YtQqIz98e8nTGwz4iJZxZGnQQKBgGu+b5T5y4TJfNxSAA8RhpG5KNtGiqGOFtm2\nM8HVt9leSy1GMUNNZn4TX6F6e/0cZ9/MA/SQ1PpRDpsKxw1/AcFMGEhBO3QQJzsc\nGQ5Cxv9cMw9BPuQAqWQaynUugHVj+9gKr9g43xnXrXbLwVpZsQOYNs2fMmRYTSJg\ntB6k5SKpAoGBALTHRgNNXWO6s1cV9W+xmksOvE4r0dWKYDkJHrFu8X9PqYgaZf4O\nrNECxfO5al2zRG7QIgN5Otv8gQXkKEbY/9+FzGlZ69NrQGrM+X0RFuLdmHrMhGUC\n4nXzYD8uUjXIjI/7QxZ2Vg2+KufiHh6osfz4MmzGCH3nBVbQ0tNMuUBZ\n-----END PRIVATE KEY-----\n",
+      "client_email": "example-service-account@my-gcp-project.iam.gserviceaccount.com",
+      "client_id": "000000000000000000000",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/example-service-account%40my-gcp-project.iam.gserviceaccount.com"
+    }

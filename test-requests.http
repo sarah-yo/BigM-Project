@@ -1,0 +1,32 @@
+# Test requests for the vulnerable application
+
+### GET Health Check
+GET http://localhost:3000/health
+
+### GET Root
+GET http://localhost:3000/
+
+### POST Template Injection Test
+POST http://localhost:3000/template
+Content-Type: application/json
+
+{
+  "template": "Hello <%= name %>!",
+  "data": { "name": "World" }
+}
+
+### POST JWT Generation
+POST http://localhost:3000/jwt
+Content-Type: application/json
+
+{
+  "payload": { "user": "testuser", "role": "admin" }
+}
+
+### POST Fetch (SSRF Test)
+POST http://localhost:3000/fetch
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/ip"
+}

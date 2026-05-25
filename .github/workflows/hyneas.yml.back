@@ -1,0 +1,147 @@
+name: Defender CLI Scan
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  defender-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+          
+    - name: Download Defender CLI
+      run: |
+       curl -L -o defender "https://aka.ms/defender-cli_linux-x64" && chmod +x defender
+
+    - name: Run Defender CLI Scan (Built)
+      run: |
+        ./defender scan fs . --include ai-scan--output-formats html,sarif --defender-output output.html
+      continue-on-error: true
+
+    - name: Upload production-ready artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: results
+        path: output.html
+
+    - name: Upload SARIF to Code Scanning
+      if: always()
+      uses: github/codeql-action/upload-sarif@v4
+      continue-on-error: true
+      with:
+        sarif_file: defender.sarif
+        
+    - name: Summarize SARIF and comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+  
+          const sarifPath = './defender.sarif';
+  
+          if (!fs.existsSync(sarifPath)) {
+            core.setFailed(`SARIF file not found at: ${sarifPath}`);
+            return;
+          }
+    
+          const sarif = JSON.parse(fs.readFileSync(sarifPath, 'utf8'));
+    
+          const normalizeSeverity = (result) => {
+            const props = result.properties || {};
+            const secsev = (props['security-severity'] || props['securitySeverity'] || '').toString().toLowerCase();
+            const sev = (props['severity'] || '').toString().toLowerCase();
+            const level = (result.level || '').toString().toLowerCase();
+            const num = parseFloat(secsev);
+    
+            if (!isNaN(num)) {
+              if (num >= 9) return 'Critical';
+              if (num >= 7) return 'High';
+              if (num >= 4) return 'Medium';
+              if (num > 0) return 'Low';
+            }
+            const text = secsev || sev || level;
+            if (text === 'critical') return 'Critical';
+            if (text === 'high' || text === 'error') return 'High';
+            if (text === 'medium' || text === 'warning') return 'Medium';
+            if (text === 'low' || text === 'note') return 'Low';
+            return 'Info';
+          };
+    
+          const runs = sarif.runs || [];
+          const totals = { Critical:0, High:0, Medium:0, Low:0, Info:0, All:0 };
+    
+          for (const run of runs) {
+            for (const r of (run.results || [])) {
+              const sev = normalizeSeverity(r);
+              totals[sev] += 1;
+              totals.All += 1;
+            }
+          }
+    
+          const headerTag = '<!-- DEFENDER_SARIF_SUMMARY -->';
+          const table = `
+          | Severity | Count |
+          |---|---:|
+          | Critical | ${totals.Critical} |
+          | High     | ${totals.High} |
+          | Medium   | ${totals.Medium} |
+          | Low      | ${totals.Low} |
+          | Info     | ${totals.Info} |
+          | **All**  | **${totals.All}** |
+          `.trim();
+    
+          const body = `
+          ${headerTag}
+          ### Security Scan Summary (${path.basename(sarifPath)})
+          
+          ${table}
+          
+          > _This comment updates automatically on each run._
+          `.trim();
+          
+                const issue_number = context.payload.pull_request?.number;
+                if (!issue_number) {
+                  core.setFailed('No pull request context found.');
+                  return;
+                }
+    
+          // Find existing comment by marker and update it; otherwise create new
+          const existing = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number,
+            per_page: 100
+          });
+    
+          const prev = existing.data.find(c => c.body && c.body.includes(headerTag));
+          if (prev) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: prev.id,
+              body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              body
+            });
+          }

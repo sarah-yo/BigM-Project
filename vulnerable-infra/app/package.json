@@ -1,0 +1,11 @@
+{
+  "name": "vulnerable-lambda-app",
+  "version": "1.0.0",
+  "description": "Vulnerable Lambda application for security testing",
+  "main": "index.js",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "aws-sdk": "^2.1001.0",
+    "crypto": "^1.0.1"
+  }
+}

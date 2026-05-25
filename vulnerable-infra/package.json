@@ -1,0 +1,19 @@
+{
+  "name": "vulnerable-pulumi-infra",
+  "version": "1.0.0",
+  "description": "Vulnerable Pulumi infrastructure code for security testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/aws": "^5.0.0",
+    "@pulumi/azure-native": "^2.0.0",
+    "@pulumi/gcp": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.0",
+    "typescript": "^4.0.0"
+  }
+}
